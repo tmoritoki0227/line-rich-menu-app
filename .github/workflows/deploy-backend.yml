@@ -1,0 +1,46 @@
+name: Deploy Backend
+
+# backend/ フォルダに変更があったときだけ実行する
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+
+      # バックエンドのビルド
+      - name: Build
+        working-directory: backend
+        run: npm ci && npm run build
+
+      # ZIP 化（Linux 環境なので zip コマンドが使える）
+      - name: Package
+        run: cd backend/dist && zip ../function.zip index.js
+
+      # Lambda へのデプロイ（関数コードの更新のみ）
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://backend/function.zip
