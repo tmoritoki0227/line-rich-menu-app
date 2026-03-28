@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",       // Node.js 22 が対応している JavaScript のバージョン
+    "module": "commonjs",     // Lambda（Node.js）が読み込める形式
+    "lib": ["ES2022"],
+    "outDir": "./dist",       // コンパイル後のファイル出力先
+    "rootDir": "./src",       // TypeScript ソースのルートフォルダ
+    "strict": true,           // 厳密な型チェックを有効にする
+    "esModuleInterop": true,  // import 文の互換性を上げる
+    "skipLibCheck": true      // 外部ライブラリの型チェックをスキップ（ビルド高速化）
+  },
+  "include": ["src/**/*"]
+}

@@ -1,0 +1,31 @@
+# 依存パッケージ（npm install で復元できるため除外）
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# ビルド成果物（CI/CD でビルドするため除外）
+frontend/dist/
+backend/dist/
+backend/function.zip
+
+# 環境変数・秘匿情報
+.env
+.env.local
+.env.*.local
+
+# AWS 認証情報
+.aws/
+
+# エディタ設定
+.vscode/
+.idea/
+*.suo
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# ログ
+*.log
+npm-debug.log*
