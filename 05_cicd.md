@@ -20,16 +20,24 @@
 
 ### 19-1. GitHub リポジトリの作成
 
+**GitHub でリポジトリを作成する際の注意点（重要）:**
+
+リポジトリ作成画面で以下の項目は**すべてチェックを外す（作成しない）**こと。
+
+- `Add a README file` → **チェックしない**
+- `Add .gitignore` → **None のまま**
+- `Choose a license` → **None のまま**
+
+これらをONにするとGitHub側にすでにコミットが作られ、ローカルと履歴が合わずpushが失敗する。**完全に空のリポジトリ**として作成する。
+
+ローカルでコミットして push する。
+
 ```bash
 # line-rich-menu-app フォルダで実行
 git init
+git branch -m master main
 git add .
 git commit -m "initial commit"
-```
-
-GitHub でリポジトリを作成し、push する。
-
-```bash
 git remote add origin https://github.com/YOUR_GITHUB_USER/line-rich-menu-app.git
 git push -u origin main
 ```
@@ -54,39 +62,24 @@ GitHub Actions から AWS にアクセスするための認証設定。アクセ
 GitHub Actions が AWS に対して操作を行うためのロール。
 
 1. **IAM** ＞ **[ロール]** ＞ **[ロールを作成]**。
-2. **[カスタム信頼ポリシー]** を選択し、以下を貼り付ける（`YOUR_ACCOUNT_ID` と `YOUR_GITHUB_USER` を実際の値に置き換える）。
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
-        },
-        "StringLike": {
-          "token.actions.githubusercontent.com:sub": "repo:YOUR_GITHUB_USER/line-rich-menu-app:*"
-        }
-      }
-    }
-  ]
-}
-```
+2. **[ウェブアイデンティティ]** を選択する。
 
-3. **[次へ]** ＞ 以下のポリシーをアタッチする。
+3. 以下を設定する。
+   - **アイデンティティプロバイダー**: `token.actions.githubusercontent.com`
+   - **Audience**: `sts.amazonaws.com`
+   - **GitHub 組織**: 自分の GitHub ユーザー名
+   - **GitHub リポジトリ**: `line-rich-menu-app`
+   - **GitHub ブランチ**: （空欄のまま）
+
+4. **[次へ]** ＞ 以下のポリシーをアタッチする。
    - `AmazonS3FullAccess`
    - `CloudFrontFullAccess`
    - `AWSLambda_FullAccess`
 
-4. ロール名: `github-actions-line-rich-menu-app` ＞ **[ロールを作成]**。
+5. ロール名: `github-actions-line-rich-menu-app` ＞ **[ロールを作成]**。
 
-5. 作成したロールの **ARN**（例: `arn:aws:iam::123456789012:role/github-actions-line-rich-menu-app`）をコピーしておく。
+6. 作成したロールの **ARN**（例: `arn:aws:iam::123456789012:role/github-actions-line-rich-menu-app`）をコピーしておく。
 
 ### 19-4. GitHub Secrets の設定
 
@@ -102,6 +95,15 @@ GitHub リポジトリ ＞ **[Settings]** ＞ **[Secrets and variables]** ＞ **
 > **ディストリビューション ID の確認方法**: AWSコンソール ＞ CloudFront ＞ ディストリビューション一覧の「ID」列（例: `ABCDEF1234GHIJ`）。
 
 ### 19-5. フロントエンドデプロイ用ワークフロー
+
+`frontend/` フォルダに変更があって `main` にpushされると自動で以下を実行する。
+
+1. リポジトリのコードを取得
+2. Node.js 22 をセットアップ
+3. OIDC で AWS に認証
+4. `npm run build` で Vue アプリをビルド（`frontend/dist/` に出力）
+5. `dist/` の中身を S3 に同期（削除も含む）
+6. CloudFront のキャッシュを削除して最新版を配信
 
 `.github/workflows/deploy-frontend.yml` を作成する。
 
@@ -160,6 +162,15 @@ jobs:
 
 ### 19-6. バックエンドデプロイ用ワークフロー
 
+`backend/` フォルダに変更があって `main` にpushされると自動で以下を実行する。
+
+1. リポジトリのコードを取得
+2. Node.js 22 をセットアップ
+3. OIDC で AWS に認証
+4. `npm run build` で TypeScript を JavaScript にビルド（`backend/dist/` に出力）
+5. `dist/index.js` を ZIP 化
+6. ZIP を Lambda にアップロードして関数コードを更新
+
 `.github/workflows/deploy-backend.yml` を作成する。
 
 ```yaml
@@ -213,11 +224,31 @@ jobs:
 
 > **`npm ci` と `npm install` の違い**: `npm ci` は `package-lock.json` の内容を厳密に再現してインストールする。CI/CD 環境では `npm ci` を使うのが推奨。
 
-### 19-7. 動作確認
+### 19-7. ワークフローファイルを push する
 
-1. `frontend/src/constants.ts` などを軽く修正して `main` ブランチに push する。
-2. GitHub リポジトリ ＞ **[Actions]** タブ ＞ ワークフローが自動実行されていることを確認する。
-3. 全ステップが ✅ になったら CloudFront の URL でアプリを確認する。
+ここまでで作成したワークフローファイルをコミットして push する。**これをしないと GitHub Actions は一切動かない。**
+
+```bash
+git add .github/workflows/deploy-frontend.yml .github/workflows/deploy-backend.yml
+git commit -m "add GitHub Actions workflows"
+git push origin main
+```
+
+ただしワークフローのトリガー条件（`paths`）が `frontend/` や `backend/` の変更になっているため、ワークフローファイルの push だけでは自動実行されない。以下のコマンドで実際のファイルに変更を加えて push する。
+
+```bash
+# frontend と backend 両方をトリガーするため両方のファイルに触れる
+git add frontend/src/App.vue backend/src/webhook.ts
+git commit -m "trigger CI/CD"
+git push origin main
+```
+
+### 19-8. 動作確認
+
+1. GitHub リポジトリ ＞ **[Actions]** タブ ＞ 実行中のワークフローをクリック。
+2. 全ステップが ✅ になるまで待つ（数分かかる）。
+3. 完了したら CloudFront の URL でアプリを確認する。
+4. 以降は `frontend/` または `backend/` のファイルを変更して push するだけで自動デプロイが走る。
 
 ---
 
