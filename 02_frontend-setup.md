@@ -450,8 +450,8 @@ async function save() {
       item: item.value,
     })
 
-    // ③ 処理完了後に LIFF ウィンドウを閉じて LINE のトーク画面に戻る
-    liff.closeWindow()
+    // ③ 保存完了を通知（画面はそのまま保持）
+    alert('保存しました！！')
   } catch (err) {
     alert(`エラーが発生しました: ${(err as Error).message}`)
   } finally {

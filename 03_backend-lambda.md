@@ -412,8 +412,10 @@ interface LineEvent {
 // 履歴1件の型（表示用）
 interface HistoryItem {
   date: string
+  time: string      // HH:MM（JST）
   item: string
   amount: number
+  createdAt: string // ISO 文字列（ソート用）
 }
 
 /**
@@ -478,20 +480,34 @@ async function getMonthlyTotal(userId: string): Promise<number> {
  * 「最新の履歴を表示」キーワード用
  */
 async function getRecentHistory(userId: string, limit = 5): Promise<HistoryItem[]> {
+  // SK が UUID（ランダム）のため DynamoDB のソート順は日付順にならない
+  // 全件取得してアプリ側で登録日時降順にソートし、上位 limit 件を返す
   const result = await docClient.send(
     new QueryCommand({
       TableName: TABLE_NAME,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: { ':userId': userId },
-      ScanIndexForward: false, // 新しい順（SK の降順）
-      Limit: limit,
     })
   )
-  return (result.Items ?? []).map(record => ({
-    date: String(record.date),
-    item: String(record.item),
-    amount: Number(record.amount),
-  }))
+  return (result.Items ?? [])
+    .map(record => {
+      const createdAt = String(record.createdAt ?? '')
+      // createdAt（UTC）を JST（+9h）に変換して "HH:MM" を取り出す
+      const jstTime = createdAt
+        ? new Date(new Date(createdAt).getTime() + 9 * 60 * 60 * 1000)
+            .toISOString()
+            .substring(11, 16) // "HH:MM"
+        : '--:--'
+      return {
+        date: String(record.date),
+        time: jstTime,
+        item: String(record.item),
+        amount: Number(record.amount),
+        createdAt,
+      }
+    })
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt)) // 登録日時の新しい順
+    .slice(0, limit)
 }
 
 /**
@@ -556,7 +572,7 @@ async function processLineEvent(event: LineEvent): Promise<void> {
       await replyToLine(replyToken, '📋 まだ記録がありません。\nLIFF フォームから入力してください。')
     } else {
       // 各行を "日付 品物 金額円" 形式でフォーマット
-      const lines = items.map(i => `${i.date}  ${i.item}  ${i.amount.toLocaleString()}円`)
+      const lines = items.map(i => `${i.date} ${i.time}  ${i.item}  ${i.amount.toLocaleString()}円`)
       const message = `📋 最新${items.length}件の履歴:\n${lines.join('\n')}`
       await replyToLine(replyToken, message)
     }
