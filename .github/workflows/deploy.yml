@@ -77,8 +77,9 @@ jobs:
 
       - name: Upload to S3
         run: |
+          STACK_NAME=$(grep 'stack_name' ../samconfig.toml | sed 's/.*= *"\(.*\)"/\1/')
           BUCKET=$(aws cloudformation describe-stacks \
-            --stack-name line-rich-menu-app-stack \
+            --stack-name "$STACK_NAME" \
             --query "Stacks[0].Outputs[?OutputKey=='FrontendBucketName'].OutputValue" \
             --output text)
           aws s3 sync dist/ s3://$BUCKET --delete
