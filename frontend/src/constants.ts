@@ -6,7 +6,11 @@
 // LIFF ID
 // LINE Developers コンソール > LIFF-v3チャネル > LIFFタブ で発行される
 // 形式: "数字-英数字"（例: "2009627798-VOeFmL56"）
-export const LIFF_ID = '2009627798-VOeFmL56'
+// v3
+// export const LIFF_ID = '2009627798-VOeFmL56'
+
+//v4
+export const LIFF_ID = '2009633869-1vMxfCBb'
 
 // API Gateway のエンドポイント URL
 // 記事③で Lambda + API Gateway を作成した後に差し替える
