@@ -252,20 +252,6 @@ git push origin main
 
 ---
 
-### ✅ ステップ19 完了チェック
-
-- [ ] GitHub リポジトリが作成されコードが push されている
-- [ ] AWS OIDC プロバイダーが設定されている
-- [ ] GitHub Actions 用 IAM ロールが作成されている
-- [ ] GitHub Secrets が設定されている（4件）
-- [ ] `.github/workflows/deploy-frontend.yml` が作成されている
-- [ ] `.github/workflows/deploy-backend.yml` が作成されている
-- [ ] `main` への push で GitHub Actions が自動実行される
-- [ ] フロントエンドの変更が自動で CloudFront に反映される
-- [ ] バックエンドの変更が自動で Lambda に反映される
-
----
-
 ## 主要ファイル一覧
 
 自分で書いたファイルのみ。ビルド成果物・自動生成ファイルは除く。

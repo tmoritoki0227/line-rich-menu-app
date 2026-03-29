@@ -15,6 +15,7 @@ Parameters:
     Type: String
     NoEcho: true
     Description: LINE チャネルシークレット
+
 # -------------------------------------------------------
 # Lambda のデフォルト設定（全 Function に適用）
 # -------------------------------------------------------
@@ -113,7 +114,7 @@ Resources:
   FrontendBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: line-rich-menu-app-cicd
+      BucketName: !Sub "${AWS::StackName}-frontend"  # スタック名ベースにすることで同一アカウント内でも一意になる
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true

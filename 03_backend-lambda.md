@@ -942,19 +942,3 @@ export const API_BASE_URL = 'https://xxxxxxxxxx.execute-api.ap-northeast-1.amazo
 ```
 
 ---
-
-### ✅ ステップ6〜12 完了チェック
-
-- [ ] DynamoDB テーブル `line-bot-table-v3` が作成されている（ステータス: アクティブ）
-- [ ] `backend/src/index.ts` / `transaction.ts` / `webhook.ts` が作成されている
-- [ ] `npm run build` で `dist/index.js` が生成された
-- [ ] `function.zip` が作成できた
-- [ ] Lambda 関数 `line-bot-table-v3-handler` が作成されている
-- [ ] Lambda に ZIP がアップロードされている
-- [ ] Lambda の環境変数（`TABLE_NAME` / `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET`）が設定されている
-- [ ] Lambda の IAM ロールに DynamoDB 権限が付いている
-- [ ] API Gateway で `/transaction`（POST）/ `/history`（GET）/ `/summary`（GET）/ `/webhook`（POST）が作成されている
-- [ ] `curl` で POST /transaction が成功し、DynamoDB にレコードが入った
-- [ ] `curl` で GET /history が成功し、保存したレコードが返ってきた
-- [ ] `curl` で GET /summary が成功し、`{"total":...}` が返ってきた
-- [ ] `frontend/src/constants.ts` の `API_BASE_URL` を更新した

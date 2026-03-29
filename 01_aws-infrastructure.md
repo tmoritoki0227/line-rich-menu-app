@@ -147,13 +147,3 @@ aws sts get-caller-identity
 ```
 
 ---
-
-### ✅ ステップ1 完了チェック
-
-- [ ] IAM Identity Center が有効化されている
-- [ ] `AdministratorAccess` / `PowerUserAccess` の許可セットが作成されている
-- [ ] ユーザーに `AdministratorAccess` が割り当てられている
-- [ ] `aws sso login --profile line-rich-menu-app` でログインできる
-- [ ] `aws sts get-caller-identity --profile line-rich-menu-app` でアカウント情報が表示される
-
----

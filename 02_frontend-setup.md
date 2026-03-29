@@ -595,15 +595,3 @@ npm run dev
 > **この時点では以下のエラーが表示されるが正常**。LIFFはエンドポイントURLとアクセス元URLが一致しないと動作しない仕組みのため、`localhost` からアクセスすると `channel not found` エラーになる。記事④でCloudFrontのURLをLIFFに登録した後、スマホのLINEアプリ経由で初めて正常動作する。ローカルでの確認はここで完了。
 
 ---
-
-### ✅ ステップ2・3 完了チェック
-
-- [ ] Node.js v18以上がインストールされている
-- [ ] `npm create vite@latest` でプロジェクトが作成できた（`frontend/` フォルダ確認済み）
-- [ ] `npm install` でライブラリがインストールできた（`node_modules/` 確認済み）
-- [ ] `src/types.ts` に型定義が作成されている（ファイル確認済み）
-- [ ] `src/App.vue` に入力フォームと期間集計が実装されている（ファイル確認済み）
-- [ ] LINE Developers でMessaging APIチャネルが作成されている
-- [ ] チャネルアクセストークンとシークレットが手元に保存されている
-- [ ] LIFFアプリが作成されLIFF URLが発行されている
-- [ ] `npm run dev` でローカル起動できる（`channel not found` エラーは正常）
