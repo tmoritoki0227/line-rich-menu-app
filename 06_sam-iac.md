@@ -82,9 +82,9 @@ aws iam list-open-id-connect-providers --profile line-rich-menu-app
 
 ### 1-3. IAM ロールの作成
 
-以下の 2 つのJSONファイルを一時的に作成し、ロールを作る。`YOUR_GITHUB_ORG` は自分の GitHub ユーザー名、`YOUR_ACCOUNT_ID` は AWS アカウントIDに置き換える。
+以下の2つのJSONファイルをプロジェクトルートに作成する。**`YOUR_GITHUB_ORG` だけ**自分の GitHub ユーザー名に書き換える。
 
-**trust-policy.json（信頼ポリシー）**
+**trust-policy.json**
 
 ```json
 {
@@ -93,7 +93,7 @@ aws iam list-open-id-connect-providers --profile line-rich-menu-app
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+        "Federated": "arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
@@ -109,7 +109,7 @@ aws iam list-open-id-connect-providers --profile line-rich-menu-app
 }
 ```
 
-**deploy-policy.json（デプロイ権限）**
+**deploy-policy.json**
 
 ```json
 {
@@ -118,22 +118,12 @@ aws iam list-open-id-connect-providers --profile line-rich-menu-app
     {
       "Effect": "Allow",
       "Action": [
-        "cloudformation:*",
-        "lambda:*",
-        "apigateway:*",
-        "dynamodb:*",
-        "s3:*",
-        "cloudfront:*",
-        "iam:CreateRole",
-        "iam:DeleteRole",
-        "iam:GetRole",
-        "iam:PassRole",
-        "iam:AttachRolePolicy",
-        "iam:DetachRolePolicy",
-        "iam:PutRolePolicy",
-        "iam:DeleteRolePolicy",
-        "iam:TagRole",
-        "iam:ListRoleTags"
+        "cloudformation:*", "lambda:*", "apigateway:*",
+        "dynamodb:*", "s3:*", "cloudfront:*",
+        "iam:CreateRole", "iam:DeleteRole", "iam:GetRole", "iam:PassRole",
+        "iam:AttachRolePolicy", "iam:DetachRolePolicy",
+        "iam:PutRolePolicy", "iam:DeleteRolePolicy",
+        "iam:TagRole", "iam:ListRoleTags"
       ],
       "Resource": "*"
     }
@@ -141,35 +131,61 @@ aws iam list-open-id-connect-providers --profile line-rich-menu-app
 }
 ```
 
+ファイルを作成したら以下を実行する。`${ACCOUNT_ID}` はコマンドで自動置換される。
+
+**Mac / Linux:**
+
 ```bash
-# ロールを作成
+ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text --profile line-rich-menu-app)
+sed -i "s/\${ACCOUNT_ID}/$ACCOUNT_ID/" trust-policy.json
+
 aws iam create-role \
   --role-name github-actions-line-rich-menu-app-v4 \
   --assume-role-policy-document file://trust-policy.json \
   --profile line-rich-menu-app
 
-# デプロイ権限をアタッチ
 aws iam put-role-policy \
   --role-name github-actions-line-rich-menu-app-v4 \
   --policy-name DeployPolicy \
   --policy-document file://deploy-policy.json \
   --profile line-rich-menu-app
 
-# ロールARNを確認（後でGitHub Secretsに設定する）
+# ARN を確認してメモしておく
 aws iam get-role \
   --role-name github-actions-line-rich-menu-app-v4 \
   --query "Role.Arn" --output text \
   --profile line-rich-menu-app
+
+rm trust-policy.json deploy-policy.json
 ```
 
-出力された ARN（`arn:aws:iam::XXXXXXXXXXXX:role/github-actions-line-rich-menu-app-v4`）をメモしておく。ステップ5の GitHub Secrets 設定で使う。
+**Windows（PowerShell）:**
 
-一時ファイルは削除してよい。
+```powershell
+$ACCOUNT_ID = (aws sts get-caller-identity --query "Account" --output text --profile line-rich-menu-app)
+(Get-Content trust-policy.json) -replace '\$\{ACCOUNT_ID\}', $ACCOUNT_ID | Set-Content trust-policy.json
 
-```bash
-Remove-Item trust-policy.json, deploy-policy.json   # PowerShell
-# rm trust-policy.json deploy-policy.json           # Mac/Linux
+aws iam create-role `
+  --role-name github-actions-line-rich-menu-app-v4 `
+  --assume-role-policy-document file://trust-policy.json `
+  --profile line-rich-menu-app
+
+aws iam put-role-policy `
+  --role-name github-actions-line-rich-menu-app-v4 `
+  --policy-name DeployPolicy `
+  --policy-document file://deploy-policy.json `
+  --profile line-rich-menu-app
+
+# ARN を確認してメモしておく
+aws iam get-role `
+  --role-name github-actions-line-rich-menu-app-v4 `
+  --query "Role.Arn" --output text `
+  --profile line-rich-menu-app
+
+Remove-Item trust-policy.json, deploy-policy.json
 ```
+
+出力された ARN（`arn:aws:iam::XXXXXXXXXXXX:role/github-actions-line-rich-menu-app-v4`）をメモしておく。ステップ6の GitHub Secrets 設定で使う。
 
 ---
 
