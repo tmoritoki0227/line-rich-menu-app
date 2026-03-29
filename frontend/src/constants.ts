@@ -20,4 +20,4 @@ export const LIFF_ID = '2009633869-1vMxfCBb'
 // v3
 // export const API_BASE_URL = 'https://guaj20beh1.execute-api.ap-northeast-1.amazonaws.com/dev'
 // v4
-export const API_BASE_URL = 'https://y48utmmau0.execute-api.ap-northeast-1.amazonaws.com/dev'
+export const API_BASE_URL = 'https://0bzjm1gjyd.execute-api.ap-northeast-1.amazonaws.com/dev'

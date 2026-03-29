@@ -5,7 +5,7 @@ codeuri = "C:\\Users\\tmori\\aws-lab\\line-rich-menu-app\\backend"
 runtime = "nodejs22.x"
 architecture = "x86_64"
 handler = "dist/index.handler"
-manifest_hash = ""
+manifest_hash = "639448fae95bb63126c97a86fad003a3"
 packagetype = "Zip"
 functions = ["LineBotFunction"]
 
@@ -16,6 +16,7 @@ BuildMethod = "esbuild"
 Target = "es2022"
 EntryPoints = ["src/index.ts"]
 External = ["@aws-sdk/*"]
+
 
 
 

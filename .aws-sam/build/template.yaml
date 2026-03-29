@@ -104,7 +104,8 @@ Resources:
   FrontendBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: line-rich-menu-app-cicd
+      BucketName:
+        Fn::Sub: ${AWS::StackName}-frontend
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -185,6 +186,18 @@ Outputs:
       Fn::Sub: https://${LineBotApi}.execute-api.${AWS::Region}.amazonaws.com/dev/webhook
   FrontendBucketName:
     Description: "\u30D5\u30ED\u30F3\u30C8\u30A8\u30F3\u30C9\u3092\u30A2\u30C3\u30D7\
-      \u30ED\u30FC\u30C9\u3059\u308B S3 \u30D0\u30B1\u30C3\u30C8\u540D"
+      \u30ED\u30FC\u30C9\u3059\u308B S3 \u30D0\u30B1\u30C3\u30C8\u540D\uFF08GitHub\
+      \ Actions \u3067\u4F7F\u7528\uFF09"
     Value:
       Ref: FrontendBucket
+  CloudFrontDistributionId:
+    Description: "CloudFront \u30C7\u30A3\u30B9\u30C8\u30EA\u30D3\u30E5\u30FC\u30B7\
+      \u30E7\u30F3 ID\uFF08\u30AD\u30E3\u30C3\u30B7\u30E5\u524A\u9664\u30FBGitHub\
+      \ Actions \u3067\u4F7F\u7528\uFF09"
+    Value:
+      Ref: CloudFrontDistribution
+  LambdaFunctionName:
+    Description: "Lambda \u95A2\u6570\u540D\uFF08GitHub Actions \u3067\u4F7F\u7528\
+      \uFF09"
+    Value:
+      Ref: LineBotFunction
