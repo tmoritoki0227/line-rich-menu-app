@@ -1,17 +1,13 @@
 version = 0.1
 
-[default.global.parameters]
-profile = "line-rich-menu-app"
-
 [default.build.parameters]
 cached = true
 
 [default.deploy.parameters]
-stack_name    = "line-rich-menu-app-stack"
-s3_prefix     = "line-rich-menu-app-stack"
-s3_bucket = "line-rich-menu-app-cicd"
-region        = "ap-northeast-1"
-capabilities  = "CAPABILITY_IAM"
+stack_name        = "line-rich-menu-app-stack"
+s3_prefix         = "line-rich-menu-app-stack"
+region            = "ap-northeast-1"
+capabilities      = "CAPABILITY_IAM"
 confirm_changeset = false
 disable_rollback  = false
-resolve_s3    = true
+resolve_s3        = true
