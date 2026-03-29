@@ -656,13 +656,19 @@ jobs:
 
       - name: SAM Deploy
         # samconfig.toml の設定を使い、LINE トークンはシークレットから渡す
+        # 各パラメータを "" で囲むことで特殊文字を含む値でも正しく渡せる
+        # GitHubOrg/GitHubRepo は GitHub 組み込み変数から取得（Secrets 不要）
+        # CreateOIDCProvider は CI では常に false（初回 sam deploy 時に作成済み）
         run: |
           sam deploy \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --parameter-overrides \
-              LineChannelAccessToken=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }} \
-              LineChannelSecret=${{ secrets.LINE_CHANNEL_SECRET }}
+              "LineChannelAccessToken=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}" \
+              "LineChannelSecret=${{ secrets.LINE_CHANNEL_SECRET }}" \
+              "GitHubOrg=${{ github.repository_owner }}" \
+              "GitHubRepo=${{ github.event.repository.name }}" \
+              "CreateOIDCProvider=false"
 
   # -------------------------------------------------------
   # ② フロントエンド: ビルド → S3 → CloudFront キャッシュ削除
@@ -757,4 +763,4 @@ sam delete --stack-name line-rich-menu-app-stack --profile line-rich-menu-app
 - [ ] フロントエンドの `constants.ts` に `ApiUrl` を設定した
 - [ ] 旧ワークフローファイル（`deploy-backend.yml` / `deploy-frontend.yml`）を削除した
 - [ ] `deploy.yml` を GitHub Actions に設定し `AWS_ROLE_ARN` 等の Secrets を登録した
-- [ ] LINE の�
+- [ ] LINE の�                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
