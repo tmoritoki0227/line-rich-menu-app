@@ -1,5 +1,3 @@
-
-
 // LINE から送られてくる Webhook イベントを受信・処理する
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
