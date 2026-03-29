@@ -38,18 +38,13 @@ jobs:
 
       - name: SAM Deploy
         # 各パラメータを "" で囲むことで特殊文字を含む値でも正しく渡せる
-        # GitHubOrg/GitHubRepo は GitHub 組み込み変数から取得（Secrets 不要）
-        # CreateOIDCProvider は CI では常に false（初回 sam deploy 時に作成済み）
         run: |
           sam deploy \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --parameter-overrides \
               "LineChannelAccessToken=${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}" \
-              "LineChannelSecret=${{ secrets.LINE_CHANNEL_SECRET }}" \
-              "GitHubOrg=${{ github.repository_owner }}" \
-              "GitHubRepo=${{ github.event.repository.name }}" \
-              "CreateOIDCProvider=false"
+              "LineChannelSecret=${{ secrets.LINE_CHANNEL_SECRET }}"
 
   # -------------------------------------------------------
   # ② フロントエンド: ビルド → S3 → CloudFront キャッシュ削除

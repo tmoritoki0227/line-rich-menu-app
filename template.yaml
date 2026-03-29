@@ -15,21 +15,6 @@ Parameters:
     Type: String
     NoEcho: true
     Description: LINE チャネルシークレット
-  GitHubOrg:
-    Type: String
-    Description: "GitHub ユーザー名または Organization 名（例: your-github-username）"
-  GitHubRepo:
-    Type: String
-    Default: line-rich-menu-app
-    Description: GitHub リポジトリ名
-  CreateOIDCProvider:
-    Type: String
-    Default: "true"
-    AllowedValues: ["true", "false"]
-    Description: >
-      GitHub OIDC プロバイダーを作成するか。
-      記事⑤を実施済みで既にプロバイダーが存在する場合は "false" を指定する。
-
 # -------------------------------------------------------
 # Lambda のデフォルト設定（全 Function に適用）
 # -------------------------------------------------------
@@ -41,12 +26,6 @@ Globals:
     Environment:
       Variables:
         TABLE_NAME: !Ref LineBotTable
-
-# -------------------------------------------------------
-# 条件（パラメータによってリソース作成を切り替え）
-# -------------------------------------------------------
-Conditions:
-  ShouldCreateOIDCProvider: !Equals [!Ref CreateOIDCProvider, "true"]
 
 # -------------------------------------------------------
 # リソース定義
@@ -194,59 +173,6 @@ Resources:
             ResponseCode: 200
             ResponsePagePath: /index.html
 
-  # --- GitHub Actions 用 OIDC プロバイダー（アカウントに未存在の場合のみ作成）---
-  GitHubOIDCProvider:
-    Type: AWS::IAM::OIDCProvider
-    Condition: ShouldCreateOIDCProvider
-    Properties:
-      Url: https://token.actions.githubusercontent.com
-      ClientIdList:
-        - sts.amazonaws.com
-      ThumbprintList:
-        - 6938fd4d98bab03faadb97b34396831e3780aea
-
-  # --- GitHub Actions 用 IAM ロール ---
-  GitHubActionsRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub "github-actions-${AWS::StackName}"
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Federated: !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
-            Action: sts:AssumeRoleWithWebIdentity
-            Condition:
-              StringEquals:
-                token.actions.githubusercontent.com:aud: sts.amazonaws.com
-              StringLike:
-                token.actions.githubusercontent.com:sub: !Sub "repo:${GitHubOrg}/${GitHubRepo}:*"
-      Policies:
-        - PolicyName: DeployPolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cloudformation:*
-                  - lambda:*
-                  - apigateway:*
-                  - dynamodb:*
-                  - s3:*
-                  - cloudfront:*
-                  - iam:CreateRole
-                  - iam:DeleteRole
-                  - iam:GetRole
-                  - iam:PassRole
-                  - iam:AttachRolePolicy
-                  - iam:DetachRolePolicy
-                  - iam:PutRolePolicy
-                  - iam:DeleteRolePolicy
-                  - iam:TagRole
-                  - iam:ListRoleTags
-                Resource: "*"
-
 # -------------------------------------------------------
 # デプロイ後に表示される出力値
 # -------------------------------------------------------
@@ -269,6 +195,3 @@ Outputs:
   LambdaFunctionName:
     Description: Lambda 関数名（GitHub Actions で使用）
     Value: !Ref LineBotFunction
-  GitHubActionsRoleArn:
-    Description: GitHub Actions 用 IAM ロール ARN（AWS_ROLE_ARN に設定する）
-    Value: !GetAtt GitHubActionsRole.Arn
