@@ -12,4 +12,8 @@ export const LIFF_ID = '2009627798-VOeFmL56'
 // 記事③で Lambda + API Gateway を作成した後に差し替える
 // 末尾のスラッシュは不要
 // 例: "https://xxxx.execute-api.ap-northeast-1.amazonaws.com/dev"
-export const API_BASE_URL = 'https://guaj20beh1.execute-api.ap-northeast-1.amazonaws.com/dev'
+
+// v3
+// export const API_BASE_URL = 'https://guaj20beh1.execute-api.ap-northeast-1.amazonaws.com/dev'
+// v4
+export const API_BASE_URL = 'https://y48utmmau0.execute-api.ap-northeast-1.amazonaws.com/dev'

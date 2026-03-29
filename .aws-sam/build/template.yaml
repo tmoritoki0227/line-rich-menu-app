@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "LINE \u5BB6\u8A08\u7C3F\u30DC\u30C3\u30C8\uFF08Lambda / DynamoDB / API\
+  \ Gateway / S3 / CloudFront\uFF09"
+Parameters:
+  LineChannelAccessToken:
+    Type: String
+    NoEcho: true
+    Description: "LINE \u30C1\u30E3\u30CD\u30EB\u30A2\u30AF\u30BB\u30B9\u30C8\u30FC\
+      \u30AF\u30F3"
+  LineChannelSecret:
+    Type: String
+    NoEcho: true
+    Description: "LINE \u30C1\u30E3\u30CD\u30EB\u30B7\u30FC\u30AF\u30EC\u30C3\u30C8"
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures:
+    - x86_64
+    Timeout: 15
+    Environment:
+      Variables:
+        TABLE_NAME:
+          Ref: LineBotTable
+Resources:
+  LineBotTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: line-bot-table-v4
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+      - AttributeName: id
+        KeyType: RANGE
+  LineBotFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: line-bot-table-v4-handler
+      CodeUri: LineBotFunction
+      Handler: index.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: LineBotTable
+      Environment:
+        Variables:
+          LINE_CHANNEL_ACCESS_TOKEN:
+            Ref: LineChannelAccessToken
+          LINE_CHANNEL_SECRET:
+            Ref: LineChannelSecret
+      Events:
+        PostTransaction:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /transaction
+            Method: POST
+        GetHistory:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /history
+            Method: GET
+        GetSummary:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /summary
+            Method: GET
+        PostWebhook:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /webhook
+            Method: POST
+    Metadata:
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+        - src/index.ts
+        External:
+        - '@aws-sdk/*'
+        Target: es2022
+      SamResourceId: LineBotFunction
+  LineBotApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: line-bot-api-v4
+      StageName: dev
+      Cors:
+        AllowMethods: '''GET,POST,OPTIONS'''
+        AllowHeaders: '''Content-Type'''
+        AllowOrigin: '''*'''
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: line-rich-menu-app-cicd
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  CloudFrontOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: line-rich-menu-app-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: FrontendBucket
+      PolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: cloudfront.amazonaws.com
+          Action: s3:GetObject
+          Resource:
+            Fn::Sub: ${FrontendBucket.Arn}/*
+          Condition:
+            StringEquals:
+              AWS:SourceArn:
+                Fn::Sub: arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Origins:
+        - DomainName:
+            Fn::GetAtt:
+            - FrontendBucket
+            - RegionalDomainName
+          Id: S3Origin
+          OriginAccessControlId:
+            Fn::GetAtt:
+            - CloudFrontOAC
+            - Id
+          S3OriginConfig:
+            OriginAccessIdentity: ''
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        CustomErrorResponses:
+        - ErrorCode: 403
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+        - ErrorCode: 404
+          ResponseCode: 200
+          ResponsePagePath: /index.html
+Outputs:
+  ApiUrl:
+    Description: "API Gateway \u306E\u30A8\u30F3\u30C9\u30DD\u30A4\u30F3\u30C8 URL"
+    Value:
+      Fn::Sub: https://${LineBotApi}.execute-api.${AWS::Region}.amazonaws.com/dev
+  CloudFrontUrl:
+    Description: "CloudFront \u306E\u30C9\u30E1\u30A4\u30F3 URL\uFF08LIFF \u30A8\u30F3\
+      \u30C9\u30DD\u30A4\u30F3\u30C8\u306B\u8A2D\u5B9A\u3059\u308B\uFF09"
+    Value:
+      Fn::Sub: https://${CloudFrontDistribution.DomainName}
+  WebhookUrl:
+    Description: "LINE Webhook URL\uFF08LINE Developers \u306B\u8A2D\u5B9A\u3059\u308B\
+      \uFF09"
+    Value:
+      Fn::Sub: https://${LineBotApi}.execute-api.${AWS::Region}.amazonaws.com/dev/webhook
+  FrontendBucketName:
+    Description: "\u30D5\u30ED\u30F3\u30C8\u30A8\u30F3\u30C9\u3092\u30A2\u30C3\u30D7\
+      \u30ED\u30FC\u30C9\u3059\u308B S3 \u30D0\u30B1\u30C3\u30C8\u540D"
+    Value:
+      Ref: FrontendBucket
