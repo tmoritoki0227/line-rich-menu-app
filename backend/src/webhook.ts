@@ -54,21 +54,43 @@ function verifyLineSignature(body: string, signature: string): boolean {
 }
 
 /**
- * LINE にリプライメッセージを送る
+ * LINE にテキストリプライを送る
  *
- * LINE Reply API を直接呼び出す（Node.js 18 組み込みの fetch を使用）
+ * LINE Reply API を直接呼び出す（Node.js 22 組み込みの fetch を使用）
  */
 async function replyToLine(replyToken: string, text: string): Promise<void> {
   await fetch('https://api.line.me/v2/bot/message/reply', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // LINE チャネルアクセストークンを Bearer トークンとして渡す
       Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
     },
     body: JSON.stringify({
       replyToken,
       messages: [{ type: 'text', text }],
+    }),
+  })
+}
+
+/**
+ * LINE に Flex Message（カード形式）でリプライを送る
+ *
+ * ボタンをタップすると text アクションでメッセージを送信できる
+ */
+async function replyFlexToLine(
+  replyToken: string,
+  altText: string,
+  contents: object
+): Promise<void> {
+  await fetch('https://api.line.me/v2/bot/message/reply', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      replyToken,
+      messages: [{ type: 'flex', altText, contents }],
     }),
   })
 }
@@ -164,6 +186,8 @@ export async function handleWebhook(
  * 対応キーワード:
  * - 「合計」「summary」  : 当月の支出合計を返す
  * - 「最新の履歴を表示」 : 最新5件の履歴を返す
+ * - 「ヘルプ」           : 操作メニューを Flex Message で返す
+ * - 「機能2」            : 準備中メッセージを返す
  * - その他              : 使い方の案内を返す
  */
 async function processLineEvent(event: LineEvent): Promise<void> {
@@ -191,17 +215,90 @@ async function processLineEvent(event: LineEvent): Promise<void> {
     if (items.length === 0) {
       await replyToLine(replyToken, '📋 まだ記録がありません。\nLIFF フォームから入力してください。')
     } else {
-      // 各行を "日付 品物 金額円" 形式でフォーマット
+      // 各行を "日付 時間 品物 金額円" 形式でフォーマット
       const lines = items.map(i => `${i.date} ${i.time}  ${i.item}  ${i.amount.toLocaleString()}円`)
       const message = `📋 最新${items.length}件の履歴:\n${lines.join('\n')}`
       await replyToLine(replyToken, message)
     }
 
+  } else if (text === 'ヘルプ') {
+    // 操作メニューを Flex Message（カード形式）で返す
+    // ボタンをタップするとそのキーワードがチャットに送信される
+    const flexContents = {
+      type: 'bubble',
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'text',
+            text: '操作メニュー',
+            weight: 'bold',
+            size: 'lg',
+            margin: 'md',
+          },
+          {
+            type: 'text',
+            text: '以下から操作を選んでください',
+            size: 'sm',
+            color: '#888888',
+            margin: 'sm',
+          },
+          {
+            type: 'separator',
+            margin: 'lg',
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            margin: 'lg',
+            spacing: 'sm',
+            contents: [
+              {
+                type: 'button',
+                style: 'primary',
+                color: '#4CAF50',
+                action: {
+                  type: 'message',
+                  label: '📊 今月の合計を見る',
+                  text: '合計',
+                },
+              },
+              {
+                type: 'button',
+                style: 'primary',
+                color: '#2196F3',
+                action: {
+                  type: 'message',
+                  label: '📋 最新の履歴を見る',
+                  text: '最新の履歴を表示',
+                },
+              },
+              {
+                type: 'button',
+                style: 'secondary',
+                action: {
+                  type: 'message',
+                  label: '❓ ヘルプを表示',
+                  text: 'ヘルプ',
+                },
+              },
+            ],
+          },
+        ],
+      },
+    }
+    await replyFlexToLine(replyToken, '操作メニュー', flexContents)
+
+  } else if (text === '機能2') {
+    // 未実装機能のプレースホルダー
+    await replyToLine(replyToken, '🚧 この機能は現在準備中です。\nしばらくお待ちください。')
+
   } else {
     // 上記以外は使い方の案内を返す
     await replyToLine(
       replyToken,
-      '「合計」→ 今月の合計\n「最新の履歴を表示」→ 最新履歴\n\n入力はリッチメニューの「入力フォーム」から行ってください。'
+      '「合計」→ 今月の合計\n「最新の履歴を表示」→ 最新履歴\n「ヘルプ」→ 操作メニュー\n\n入力はリッチメニューの「入力フォーム」から行ってください。'
     )
   }
 }
