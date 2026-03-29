@@ -33,13 +33,13 @@ jobs:
           aws-region: ap-northeast-1
 
       - name: SAM Build
-        # esbuild で TypeScript をビルド
-        run: sam build
+        # --profile "" を追加して TOML の設定を打ち消す
+        run: sam build --profile ""
 
       - name: SAM Deploy
-        # samconfig.toml の設定を使い、LINE トークンはシークレットから渡す
         run: |
           sam deploy \
+            --profile "" \
             --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --parameter-overrides \
