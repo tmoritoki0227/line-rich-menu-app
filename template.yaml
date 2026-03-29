@@ -17,7 +17,7 @@ Parameters:
     Description: LINE チャネルシークレット
   GitHubOrg:
     Type: String
-    Description: GitHub ユーザー名または Organization 名（例: your-github-username）
+    Description: "GitHub ユーザー名または Organization 名（例: your-github-username）"
   GitHubRepo:
     Type: String
     Default: line-rich-menu-app
