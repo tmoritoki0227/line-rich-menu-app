@@ -4,6 +4,95 @@
 
 ---
 
+## システム構成図
+
+> 以下の図は GitHub 上でレンダリングされる（Mermaid 記法）。VS Code では [Markdown Preview Mermaid Support](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid) 拡張で確認できる。
+
+### 全体構成
+
+```mermaid
+graph TB
+    subgraph PHONE["📱 LINE アプリ（スマホ）"]
+        U["ユーザー"]
+    end
+
+    subgraph LINE_SV["LINE プラットフォーム"]
+        LS["LINE サーバー"]
+    end
+
+    subgraph AWS["☁️ AWS"]
+        CF["CloudFront\nCDN"]
+        S3["S3\nVue 3 静的ファイル"]
+        GW["API Gateway\nREST API"]
+        LF["Lambda\nNode.js / TypeScript"]
+        DB["DynamoDB\n家計簿データ"]
+    end
+
+    subgraph CICD["🔧 CI/CD"]
+        GH["GitHub Actions"]
+    end
+
+    U -->|"テキスト送信"| LS
+    LS -->|"Webhook"| GW
+    GW --> LF
+    LF --> DB
+    LF -->|"返信"| LS
+    LS --> U
+
+    U -->|"入力フォームタップ"| CF
+    CF --> S3
+    S3 -.->|"Vue3 アプリ配信"| U
+    U -->|"POST /transaction"| GW
+
+    GH -->|"sam deploy\nLambda / DynamoDB / API Gateway"| AWS
+    GH -->|"s3 sync\nフロントエンド"| S3
+```
+
+### Bot フロー（テキストメッセージ）
+
+ユーザーが「合計」「履歴」などのキーワードを送信したときの流れ。
+
+```mermaid
+sequenceDiagram
+    participant U as 📱 ユーザー
+    participant LS as LINE サーバー
+    participant GW as API Gateway
+    participant LF as Lambda
+    participant DB as DynamoDB
+
+    U->>LS: 「合計」と送信
+    LS->>GW: POST /webhook
+    GW->>LF: handleWebhook()
+    LF->>DB: 当月データを全件取得
+    DB-->>LF: レコード一覧
+    LF->>LS: 「📊 3月の合計: 15,000円」を返信
+    LS-->>U: メッセージ受信
+```
+
+### LIFF フロー（入力フォーム）
+
+リッチメニューの「入力フォーム」をタップしたときの流れ。
+
+```mermaid
+sequenceDiagram
+    participant U as 📱 ユーザー
+    participant CF as CloudFront / S3
+    participant GW as API Gateway
+    participant LF as Lambda
+    participant DB as DynamoDB
+
+    U->>CF: 入力フォームタップ
+    CF-->>U: Vue 3 アプリを配信
+    U->>U: フォームに日付・金額・品物を入力
+    U->>GW: POST /transaction
+    GW->>LF: saveTransaction()
+    LF->>DB: レコードを書き込み
+    DB-->>LF: 完了
+    LF-->>U: 「保存しました」
+```
+
+---
+
 ## なぜ構成を整えるのか
 
 小さなアプリは 1 ファイルに全部書いても動く。しかし以下のような問題が出てくる。
