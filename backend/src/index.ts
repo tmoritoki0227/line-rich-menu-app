@@ -1,12 +1,12 @@
-// Lambda のエントリポイント
-// API Gateway からのリクエストをパスとメソッドで各処理関数に振り分ける
+// Lambda のエントリポイント（ルーター）
+//
+// API Gateway からのリクエストをパス・メソッドで handlers/ に振り分けるだけ。
+// ビジネスロジックは一切書かない。
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-// APIGatewayProxyEvent : API Gateway から Lambda に渡されるリクエスト情報の型
-// APIGatewayProxyResult: Lambda が API Gateway に返すレスポンスの型
 
-import { saveTransaction, getHistory, getSummary } from './transaction'
-import { handleWebhook } from './webhook'
+import { saveTransaction, getHistory, getSummary } from './handlers/transaction'
+import { handleWebhook } from './handlers/webhook'
 
 // Lambda ハンドラ
 // Lambda 関数が呼び出されると、この handler 関数が実行される

@@ -64,6 +64,7 @@ Resources:
         Variables:
           LINE_CHANNEL_ACCESS_TOKEN: !Ref LineChannelAccessToken
           LINE_CHANNEL_SECRET: !Ref LineChannelSecret
+          NODE_OPTIONS: --enable-source-maps   # ソースマップを有効化（エラー時に元ファイルの行番号を表示）
       Events:
         PostTransaction:
           Type: Api
@@ -94,6 +95,7 @@ Resources:
       BuildMethod: esbuild
       BuildProperties:
         Target: es2022
+        Sourcemap: true       # ソースマップ生成（エラー時に元の .ts ファイルの行番号を表示するため）
         EntryPoints:
           - src/index.ts
         External:
