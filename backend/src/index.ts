@@ -7,6 +7,9 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { saveTransaction, getHistory, getSummary } from './handlers/transaction'
 import { handleWebhook } from './handlers/webhook'
+import { getMenu } from './handlers/menu'
+import { postOrder, getOrderById } from './handlers/order'
+import { getStaffOrders, putOrderStatus } from './handlers/staff'
 
 // Lambda ハンドラ
 // Lambda 関数が呼び出されると、この handler 関数が実行される
@@ -40,6 +43,29 @@ export const handler = async (
     if (method === 'POST' && path === '/webhook') {
       // LINE サーバーからの Webhook 受信
       return await handleWebhook(event)
+    }
+
+    // --- モバイルオーダー ---
+
+    if (method === 'GET' && path === '/menu') {
+      return await getMenu(event)
+    }
+
+    if (method === 'POST' && path === '/order') {
+      return await postOrder(event)
+    }
+
+    // GET /order/{orderId} — パスが "/order/" で始まり、第3セグメントが存在する場合
+    if (method === 'GET' && /^\/order\/[^/]+$/.test(path)) {
+      return await getOrderById(event)
+    }
+
+    if (method === 'GET' && path === '/staff/orders') {
+      return await getStaffOrders(event)
+    }
+
+    if (method === 'PUT' && path.startsWith('/staff/orders/') && path.endsWith('/status')) {
+      return await putOrderStatus(event)
     }
 
     // 上記以外のパスは 404 を返す

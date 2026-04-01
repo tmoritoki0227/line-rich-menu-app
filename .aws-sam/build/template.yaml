@@ -22,7 +22,50 @@ Globals:
       Variables:
         TABLE_NAME:
           Ref: LineBotTable
+        MENU_TABLE_NAME:
+          Ref: MenuItemsTable
+        ORDERS_TABLE_NAME:
+          Ref: OrdersTable
 Resources:
+  MenuItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: menu-items
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: PK
+        AttributeType: S
+      - AttributeName: SK
+        AttributeType: S
+      KeySchema:
+      - AttributeName: PK
+        KeyType: HASH
+      - AttributeName: SK
+        KeyType: RANGE
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: orders
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: orderId
+        AttributeType: S
+      - AttributeName: status
+        AttributeType: S
+      - AttributeName: createdAt
+        AttributeType: S
+      KeySchema:
+      - AttributeName: orderId
+        KeyType: HASH
+      GlobalSecondaryIndexes:
+      - IndexName: status-createdAt-index
+        KeySchema:
+        - AttributeName: status
+          KeyType: HASH
+        - AttributeName: createdAt
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
   LineBotTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -48,12 +91,19 @@ Resources:
       - DynamoDBCrudPolicy:
           TableName:
             Ref: LineBotTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: MenuItemsTable
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: OrdersTable
       Environment:
         Variables:
           LINE_CHANNEL_ACCESS_TOKEN:
             Ref: LineChannelAccessToken
           LINE_CHANNEL_SECRET:
             Ref: LineChannelSecret
+          NODE_OPTIONS: --enable-source-maps
       Events:
         PostTransaction:
           Type: Api
@@ -83,6 +133,41 @@ Resources:
               Ref: LineBotApi
             Path: /webhook
             Method: POST
+        GetMenu:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /menu
+            Method: GET
+        CreateOrder:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /order
+            Method: POST
+        GetOrder:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /order/{orderId}
+            Method: GET
+        GetStaffOrders:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /staff/orders
+            Method: GET
+        UpdateOrderStatus:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: LineBotApi
+            Path: /staff/orders/{orderId}/status
+            Method: PUT
     Metadata:
       BuildMethod: esbuild
       BuildProperties:
@@ -90,6 +175,7 @@ Resources:
         - src/index.ts
         External:
         - '@aws-sdk/*'
+        Sourcemap: true
         Target: es2022
       SamResourceId: LineBotFunction
   LineBotApi:
@@ -98,7 +184,7 @@ Resources:
       Name: line-bot-api-v4
       StageName: dev
       Cors:
-        AllowMethods: '''GET,POST,OPTIONS'''
+        AllowMethods: '''GET,POST,PUT,DELETE,OPTIONS'''
         AllowHeaders: '''Content-Type'''
         AllowOrigin: '''*'''
   FrontendBucket:

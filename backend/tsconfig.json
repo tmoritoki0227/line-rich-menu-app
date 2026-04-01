@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",       // Node.js 22 が対応している JavaScript のバージョン
     "module": "commonjs",     // Lambda（Node.js）が読み込める形式
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "dom"],
+    "types": ["node"],
     "outDir": "./dist",       // コンパイル後のファイル出力先
     "rootDir": "./src",       // TypeScript ソースのルートフォルダ
     "strict": true,           // 厳密な型チェックを有効にする
