@@ -49,42 +49,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import liff from '@line/liff'
 import { useCart } from '../../composables/useCart'
 import { useOrder } from '../../composables/useOrder'
-import { ORDER_LIFF_ID } from '../../constants'
+import { useLiffOrder } from '../../composables/useLiffOrder'
 import type { CartItem } from '../../composables/useCart'
 
 const router = useRouter()
 const { cartItems, totalPrice, clearCart } = useCart()
 const { isSubmitting, errorMessage, submitOrder } = useOrder()
 
-// LIFF から取得したユーザー情報
-const userId   = ref('guest')
-const userName = ref('ゲスト')
+// MenuPage で init 済みの userId / userName を共有して使う
+const { userId, userName } = useLiffOrder()
 
 const optionText = (item: CartItem) =>
   Object.values(item.selectedOptions).filter(Boolean).join('・')
-
-// ページ表示時に LIFF を初期化してユーザー情報を取得する
-onMounted(async () => {
-  try {
-    await liff.init({ liffId: ORDER_LIFF_ID })
-
-    if (!liff.isLoggedIn()) {
-      liff.login()  // 未ログインなら LINE ログイン画面へ
-      return
-    }
-
-    const profile  = await liff.getProfile()
-    userId.value   = profile.userId
-    userName.value = profile.displayName
-  } catch {
-    // ブラウザ直接アクセス時などはゲストのまま続行
-  }
-})
 
 const handleOrder = async () => {
   const result = await submitOrder({

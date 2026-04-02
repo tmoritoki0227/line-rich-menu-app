@@ -57,6 +57,7 @@ import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { API_BASE_URL } from '../../constants'
 import { useCart } from '../../composables/useCart'
+import { useLiffOrder } from '../../composables/useLiffOrder'
 import CategoryTabs from '../../components/order/CategoryTabs.vue'
 import MenuItemCard from '../../components/order/MenuItemCard.vue'
 import type { MenuCategory } from '../../types/order'
@@ -67,6 +68,7 @@ const isLoading       = ref(true)
 const errorMessage    = ref('')
 
 const { totalCount, totalPrice } = useCart()
+const { initLiff } = useLiffOrder()
 
 // 現在選択中のカテゴリの商品一覧
 const currentItems = computed(() =>
@@ -74,6 +76,9 @@ const currentItems = computed(() =>
 )
 
 onMounted(async () => {
+  // LIFF 初期化（ユーザー情報取得）をメニュー表示と同時に実行
+  initLiff()
+
   try {
     const res = await axios.get(`${API_BASE_URL}/menu`)
     categories.value = res.data.categories
