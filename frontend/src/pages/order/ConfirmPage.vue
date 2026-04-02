@@ -51,6 +51,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import liff from '@line/liff'
 import { useCart } from '../../composables/useCart'
 import { useOrder } from '../../composables/useOrder'
 import { ORDER_LIFF_ID } from '../../constants'
@@ -69,10 +70,6 @@ const optionText = (item: CartItem) =>
 
 // ページ表示時に LIFF を初期化してユーザー情報を取得する
 onMounted(async () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const liff = (window as any).liff
-  if (!liff) return  // LIFF SDK が読み込まれていない場合はゲストのまま
-
   try {
     await liff.init({ liffId: ORDER_LIFF_ID })
 
