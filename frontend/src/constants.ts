@@ -12,6 +12,10 @@
 //v4
 export const LIFF_ID = '2009633869-1vMxfCBb'
 
+// モバイルオーダー用 LIFF ID
+// LINE Developers コンソール > 新しいLINEログインチャネル > LIFFタブ で発行される
+export const ORDER_LIFF_ID = '2009633869-aOYeSJTB'
+
 // API Gateway のエンドポイント URL
 // 記事③で Lambda + API Gateway を作成した後に差し替える
 // 末尾のスラッシュは不要

@@ -49,38 +49,50 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '../../composables/useCart'
 import { useOrder } from '../../composables/useOrder'
+import { ORDER_LIFF_ID } from '../../constants'
 import type { CartItem } from '../../composables/useCart'
 
 const router = useRouter()
 const { cartItems, totalPrice, clearCart } = useCart()
 const { isSubmitting, errorMessage, submitOrder } = useOrder()
 
+// LIFF から取得したユーザー情報
+const userId   = ref('guest')
+const userName = ref('ゲスト')
+
 const optionText = (item: CartItem) =>
   Object.values(item.selectedOptions).filter(Boolean).join('・')
 
-const handleOrder = async () => {
-  // LIFF から userId / userName を取得（未ログインの場合はダミー値）
+// ページ表示時に LIFF を初期化してユーザー情報を取得する
+onMounted(async () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const liff = (window as any).liff
-  let userId   = 'guest'
-  let userName = 'ゲスト'
+  if (!liff) return  // LIFF SDK が読み込まれていない場合はゲストのまま
 
   try {
-    if (liff?.isLoggedIn?.()) {
-      const profile = await liff.getProfile()
-      userId   = profile.userId
-      userName = profile.displayName
-    }
-  } catch {
-    // LIFF未初期化（ブラウザ直接アクセス時）はゲストとして進む
-  }
+    await liff.init({ liffId: ORDER_LIFF_ID })
 
+    if (!liff.isLoggedIn()) {
+      liff.login()  // 未ログインなら LINE ログイン画面へ
+      return
+    }
+
+    const profile  = await liff.getProfile()
+    userId.value   = profile.userId
+    userName.value = profile.displayName
+  } catch {
+    // ブラウザ直接アクセス時などはゲストのまま続行
+  }
+})
+
+const handleOrder = async () => {
   const result = await submitOrder({
-    userId,
-    userName,
+    userId:     userId.value,
+    userName:   userName.value,
     items:      cartItems.value,
     totalPrice: totalPrice.value,
   })
