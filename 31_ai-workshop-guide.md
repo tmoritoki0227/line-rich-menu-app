@@ -80,6 +80,7 @@ graph TB
 > **前提**：AWSアカウントは作成済みで、AdministratorAccess 権限を持つユーザーが存在すること。
 - AIを導入する（Gemini、GitHub Copilot、Cursor、Claude Code等。月20ドル程度。内部モデルは Claude 3.5 Sonnet 等が利用可能）：開発効率を優先する方は有料版を使いましょう。
 - 作業用ディレクトリを作成する（例：`my-line-app`）
+- VS Codeをインストールする
 - VS Codeで作成したディレクトリを開く
 - Gitをインストールする
 - GitHubアカウントを作成する
