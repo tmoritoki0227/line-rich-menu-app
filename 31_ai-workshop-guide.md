@@ -78,8 +78,7 @@ graph TB
 ### ステップ1：開発環境をセットアップする
 
 > **前提**：AWSアカウントは作成済みで、AdministratorAccess 権限を持つユーザーが存在すること。
-- AIを導入する（Gemini、GitHub Copilot、Cursor、Claude Code等。月20ドル程度。内部モデルは Claude 3.5 Sonnet 等が利用可能）：無料版でも利用可能ですが、最新モデルの使用回数や一度に読み込めるコード量に厳しい制限があり、複雑な開発では効率が低下するため、有料版を推奨します。特に今回の「LINE × AWS連携」のような複雑な構成は、Gemini自身の分析でも「無料版では文脈の保持が難しく、途中で矛盾が生じやすい」との回答が出ています。
-- VS Codeをインストールする
+- AIを導入する（Gemini、GitHub Copilot、Cursor、Claude Code等。月20ドル程度。内部モデルは Claude 3.5 Sonnet 等が利用可能）：開発効率を優先する方は有料版を使いましょう。
 - 作業用ディレクトリを作成する（例：`my-line-app`）
 - VS Codeで作成したディレクトリを開く
 - Gitをインストールする
