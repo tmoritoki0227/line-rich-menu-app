@@ -111,7 +111,7 @@ aws sts get-caller-identity
 | **Java** | 企業システムで広く使われる。型が厳密で大規模開発に向いている |
 | **Ruby** | 簡潔に書ける。Railsなどと組み合わせて使われることが多い |
 
-> **迷ったら Node.js を選んでください。** フロントエンドと同じ言語になるため、AIへの質問もまとめやすくなります。
+> **迷ったら Node.jsとTypeScript を選んでください。** フロントエンドと同じ言語になるため、AIへの質問もまとめやすくなります。
 
 SAM（AWS Serverless Application Model）を使ってLambda関数とインフラ定義を作ります。
 
