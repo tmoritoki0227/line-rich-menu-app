@@ -1,4 +1,4 @@
-name: Deploy（SAM + Frontend）
+name: Deploy（Backend + Frontend）
 
 on:
   push:
