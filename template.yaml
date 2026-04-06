@@ -10,15 +10,15 @@ Parameters:
   LineChannelAccessToken:
     Type: String
     NoEcho: true
-    Description: LINE チャネルアクセストークン
+    Description: LINE channel access token  # LINEチャネルアクセストークン
   LineChannelSecret:
     Type: String
     NoEcho: true
-    Description: LINE チャネルシークレット
+    Description: LINE channel secret  # LINEチャネルシークレット
   UserName:
     Type: String
     Default: moritoki
-    Description: S3 バケット名に付与するユーザー名（例: moritoki）。同一アカウント内で複数ユーザーが使う場合に衝突を防ぐ
+    Description: Username suffix for S3 bucket name to avoid conflicts in shared AWS accounts  # S3バケット名末尾に付与するユーザー名（同一アカウント内での衝突防止）
 
 # -------------------------------------------------------
 # Lambda のデフォルト設定（全 Function に適用）
@@ -44,6 +44,8 @@ Resources:
   # モバイルオーダー：メニューテーブル
   MenuItemsTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete      # スタック削除時にテーブルも削除する（検証用）
+    UpdateReplacePolicy: Delete # スタック更新時の置き換えでもテーブルを削除する（検証用）
     Properties:
       TableName: menu-items
       BillingMode: PAY_PER_REQUEST
@@ -61,6 +63,8 @@ Resources:
   # モバイルオーダー：注文テーブル（GSI で status 別に取得）
   OrdersTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete      # スタック削除時にテーブルも削除する（検証用）
+    UpdateReplacePolicy: Delete # スタック更新時の置き換えでもテーブルを削除する（検証用）
     Properties:
       TableName: orders
       BillingMode: PAY_PER_REQUEST
@@ -86,6 +90,8 @@ Resources:
 
   LineBotTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete      # スタック削除時にテーブルも削除する（検証用）
+    UpdateReplacePolicy: Delete # スタック更新時の置き換えでもテーブルを削除する（検証用）
     Properties:
       TableName: line-bot-table-v4
       BillingMode: PAY_PER_REQUEST   # オンデマンド（使った分だけ課金）
@@ -267,20 +273,20 @@ Resources:
 # -------------------------------------------------------
 Outputs:
   ApiUrl:
-    Description: API Gateway のエンドポイント URL
+    Description: API Gateway endpoint URL  # APIゲートウェイのエンドポイントURL
     Value: !Sub "https://${LineBotApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
   CloudFrontUrl:
-    Description: CloudFront のドメイン URL（LIFF エンドポイントに設定する）
+    Description: CloudFront domain URL (set as LIFF endpoint)  # CloudFrontのドメインURL（LIFFエンドポイントに設定する）
     Value: !Sub "https://${CloudFrontDistribution.DomainName}"
   WebhookUrl:
-    Description: LINE Webhook URL（LINE Developers に設定する）
+    Description: LINE Webhook URL (set in LINE Developers console)  # LINE WebhookURL（LINE Developersコンソールに設定する）
     Value: !Sub "https://${LineBotApi}.execute-api.${AWS::Region}.amazonaws.com/dev/webhook"
   FrontendBucketName:
-    Description: フロントエンドをアップロードする S3 バケット名（GitHub Actions で使用）
+    Description: S3 bucket name for frontend deployment (used by GitHub Actions)  # フロントエンドデプロイ先S3バケット名（GitHub Actionsで使用）
     Value: !Ref FrontendBucket
   CloudFrontDistributionId:
-    Description: CloudFront ディストリビューション ID（キャッシュ削除・GitHub Actions で使用）
+    Description: CloudFront distribution ID (used for cache invalidation in GitHub Actions)  # CloudFrontディストリビューションID（キャッシュ削除・GitHub Actionsで使用）
     Value: !Ref CloudFrontDistribution
   LambdaFunctionName:
-    Description: Lambda 関数名（GitHub Actions で使用）
+    Description: Lambda function name (used by GitHub Actions)  # Lambda関数名（GitHub Actionsで使用）
     Value: !Ref LineBotFunction
