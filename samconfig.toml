@@ -4,7 +4,7 @@ version = 0.1
 cached = true
 
 [default.deploy.parameters]
-stack_name        = "line-rich-menu-app-stack-moritoki"
+stack_name        = "line-rich-menu-app-stack"
 s3_prefix         = "line-rich-menu-app-stack-moritoki"
 region            = "ap-northeast-1"
 capabilities      = "CAPABILITY_IAM"
