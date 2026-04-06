@@ -3,6 +3,12 @@ name: Deploy（Backend + Frontend）
 on:
   push:
     branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'template.yaml'
+      - 'samconfig.toml'
+      - '.github/workflows/deploy.yml'
 
 permissions:
   id-token: write   # OIDC 認証に必要
