@@ -1,5 +1,14 @@
 # 【記事⑥】AWS × LINE 家計簿ボット — SAM で AWS インフラを一括構築する（応用編）
 
+> ⚠️ **この手順書について**
+> この記事はSAMによるインフラ一括構築の基本的な考え方は現在も参考になります。
+> ただし以下の点は最新の構成と異なります：
+> - `template.yaml` の内容（最新版はモバイルオーダー機能やUserNameパラメータ等が追加されています）
+> - `samconfig.toml` の内容（最新版と設定内容が異なります）
+> - GitHub Secretsの項目（最新は不要な項目があります）
+>
+> **コードをcloneして最短で動かす場合は [07_quickstart.md](./07_quickstart.md) を参照してください。**
+
 > **シリーズ概要**: TypeScript + Vue 3 + AWS（Lambda / DynamoDB / CloudFront）+ CI/CDを使って、LINEで使える家計簿ボットをゼロから構築する。
 >
 > - 記事① AWS基盤 & 認証整備（IAM Identity Center）

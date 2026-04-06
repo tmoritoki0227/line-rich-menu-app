@@ -1,5 +1,14 @@
 # 【記事④】AWS × LINE 家計簿ボットをTypeScriptで作る — フロントエンドデプロイ + LINE連携 & 最終検証
 
+> ⚠️ **この手順書について**
+> この記事はシリーズの流れに沿ってリソースを手勑作成する方法を解説しています。
+> **LINE連携の設定手順（Webhook・LIFFエンドポイント・リッチメニュー等）は現在も参考になります。**
+> ただし以下の点は最新の構成と異なります：
+> - S3・CloudFrontの構築方法（この記事はコンソール手勑操作、最新はSAM一括構築）
+> - CloudFrontキャッシュ削除の方法（最新はCloudFormation Outputsから自動取得）
+>
+> **コードをcloneして最短で動かす場合は [07_quickstart.md](./07_quickstart.md) を参照してください。**
+
 > **シリーズ概要**: TypeScript + Vue 3 + AWS（Lambda / DynamoDB / CloudFront）+ CI/CDを使って、LINEで使える家計簿ボットをゼロから構築する。全5記事。
 >
 > - 記事① AWS基盤 & 認証整備（IAM Identity Center）

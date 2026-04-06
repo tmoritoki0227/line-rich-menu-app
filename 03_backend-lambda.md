@@ -1,5 +1,14 @@
 # 【記事③】AWS × LINE 家計簿ボットをTypeScriptで作る — バックエンド実装（Lambda / DynamoDB / API Gateway）
 
+> ⚠️ **この手順書について**
+> この記事はシリーズの流れに沿ってリソースを手動作成する方法を解説しています。
+> **コードの実装内容（Lambdaロジック・DynamoDB操作・Webhook処理等）は現在も参考になります。**
+> ただし以下の点は最新の構成と異なります：
+> - AWSリソースのデプロイ方法（この記事はコンソール手動操作、最新はSAM一括構築）
+> - DynamoDBテーブル名が違います（この記事はv3系、最新はv4系）
+>
+> **コードをcloneして最短で動かす場合は [07_quickstart.md](./07_quickstart.md) を参照してください。**
+
 > **シリーズ概要**: TypeScript + Vue 3 + AWS（Lambda / DynamoDB / CloudFront）+ IaC + CI/CDを使って、LINEで使える家計簿ボットをゼロから構築する。全4記事。
 >
 > - 記事① AWS基盤 & 認証整備（IAM Identity Center）

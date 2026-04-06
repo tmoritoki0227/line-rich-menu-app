@@ -1,5 +1,13 @@
 # 【記事⑤】AWS × LINE 家計簿ボットをTypeScriptで作る — CI/CD（GitHub Actions による自動デプロイ）
 
+> ⚠️ **この手順書について**
+> この記事はCI/CDの基本的な考え方（OIDC認証・GitHub Secrets等）は現在も参考になります。
+> ただし以下の点は最新の構成と異なります：
+> - ワークフローファイルの構成（この記事はフロントエンド・バックエンド分離、最新はSAMを使った一本化）
+> - GitHub Secretsの項目（最新は不要な項目があります）
+>
+> **コードをcloneして最短で動かす場合は [07_quickstart.md](./07_quickstart.md) を参照してください。**
+
 > **シリーズ概要**: TypeScript + Vue 3 + AWS（Lambda / DynamoDB / CloudFront）+ CI/CDを使って、LINEで使える家計簿ボットをゼロから構築する。全5記事。
 >
 > - 記事① AWS基盤 & 認証整備（IAM Identity Center）
