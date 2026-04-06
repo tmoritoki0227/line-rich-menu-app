@@ -79,15 +79,15 @@ line-rich-menu-app/
 
 ## ステップ2：LINE の初期設定
 
-LINE Developers でチャンネルと LIFF アプリを作成し、後のステップで必要な値を手元にメモする。詳細な手順は **記事②「ステップ4〜5」** を参照。
+LINE Developers でチャンネルと LIFF アプリを作成し、後のステップで必要な値を手元にメモする。詳細な手順は **記事②「ステップ3」** を参照。
 
 | やること | 手順の参照先 | メモする値 |
 |---|---|---|
-| LINE Developers でプロバイダー作成 | **記事②「ステップ4-1」** | — |
-| Messaging API チャンネル作成 | **記事②「ステップ4-2」** | — |
-| チャンネルアクセストークン発行 | **記事②「ステップ4-3」** | `LINE_CHANNEL_ACCESS_TOKEN` |
-| チャンネルシークレット確認 | **記事②「ステップ4-3」** | `LINE_CHANNEL_SECRET` |
-| LIFF アプリ作成・LIFF ID 取得 | **記事②「ステップ5」** | `LIFF_ID` |
+| LINE Developers でプロバイダー作成 | **記事②「ステップ3-1」** | — |
+| Messaging API チャンネル作成 | **記事②「ステップ3-1」** | — |
+| チャンネルアクセストークン発行 | **記事②「ステップ3-2」** | `LINE_CHANNEL_ACCESS_TOKEN` |
+| チャンネルシークレット確認 | **記事②「ステップ3-2」** | `LINE_CHANNEL_SECRET` |
+| LIFF アプリ作成・LIFF ID 取得 | **記事②「ステップ3-4」** | `LIFF_ID` |
 
 > **LIFF アプリ作成時のエンドポイント URL**: この時点では CloudFront の URL がまだわからない。仮の URL（例: `https://example.com`）を入力しておき、ステップ5で正しい URL に更新する。
 
@@ -241,7 +241,7 @@ UserName:
 sam build --profile line-rich-menu-app
 ```
 
-### 4-5. SAM デプロイ（初回のみローカルから実行）
+### 4-4. SAM デプロイ（初回のみローカルから実行）
 
 > **なぜローカルで実行するか**: `git push` すれば GitHub Actions が SAM デプロイを実行するが、デプロイが完了しないと `ApiUrl`・`CloudFrontUrl`・`WebhookUrl`・`CloudFrontDistributionId` の値がわからない。これらはこの後のステップ（constants.ts の更新・LINE 設定・GitHub Secrets 設定）で必要なため、先にローカルで実行して出力値を取得する。
 
@@ -271,7 +271,7 @@ sam deploy `
   --profile line-rich-menu-app
 ```
 
-### 4-6. 出力値の確認
+### 4-5. 出力値の確認
 
 デプロイ完了後、以下の値を確認してメモする。スタック名を変更した場合は `--stack-name` の値も変える。
 
