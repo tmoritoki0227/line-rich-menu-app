@@ -15,6 +15,10 @@ Parameters:
     Type: String
     NoEcho: true
     Description: LINE チャネルシークレット
+  UserName:
+    Type: String
+    Default: moritoki
+    Description: S3 バケット名に付与するユーザー名（例: moritoki）。同一アカウント内で複数ユーザーが使う場合に衝突を防ぐ
 
 # -------------------------------------------------------
 # Lambda のデフォルト設定（全 Function に適用）
@@ -198,7 +202,7 @@ Resources:
   FrontendBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "${AWS::StackName}-frontend"  # スタック名ベースにすることで同一アカウント内でも一意になる
+      BucketName: !Sub "${AWS::StackName}-frontend-${UserName}"  # ユーザー名を末尾に付与することで同一アカウント内でも一意になる
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -210,7 +214,7 @@ Resources:
     Type: AWS::CloudFront::OriginAccessControl
     Properties:
       OriginAccessControlConfig:
-        Name: line-rich-menu-app-oac
+        Name: !Sub "line-rich-menu-app-oac-${UserName}"  # ユーザー名を含めることで同一アカウント内でも一意になる
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4
