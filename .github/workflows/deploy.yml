@@ -13,7 +13,7 @@ jobs:
   # ① バックエンド + インフラ: SAM でまとめてデプロイ
   # -------------------------------------------------------
   deploy-backend:
-    name: SAM Build & Deploy（Lambda / API Gateway / DynamoDB）
+    name: Backend - SAM Build & Deploy（Lambda / API Gateway / DynamoDB）
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
@@ -50,7 +50,7 @@ jobs:
   # ② フロントエンド: ビルド → S3 → CloudFront キャッシュ削除
   # -------------------------------------------------------
   deploy-frontend:
-    name: Frontend Build & Deploy（S3 / CloudFront）
+    name: Frontend Build & Deploy（S3 / CloudFront）  # needs: backend 完了後に実行
     runs-on: ubuntu-latest
     needs: deploy-backend   # バックエンドデプロイ後に実行
     steps:
