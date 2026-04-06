@@ -16,6 +16,12 @@ backend/function.zip
 # AWS 認証情報
 .aws/
 
+# SAM ビルド成果物
+.aws-sam/
+
+# AIツール / ローカル設定
+.claude/
+
 # エディタ設定
 .vscode/
 .idea/
