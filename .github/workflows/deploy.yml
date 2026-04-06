@@ -76,21 +76,19 @@ jobs:
         working-directory: frontend
 
       - name: Upload to S3
-        # SAM の Outputs から FrontendBucketName を動的に取得してアップロード
+        # samconfig.toml からスタック名を読み取り、CloudFormation Outputs でバケット名を取得
         run: |
-          STACK_NAME=$(grep 'stack_name' ../samconfig.toml | sed 's/.*= *"\(.*\)"/\1/')
+          STACK_NAME=$(grep 'stack_name' samconfig.toml | sed 's/.*= *"\(.*\)"/\1/')
           BUCKET=$(aws cloudformation describe-stacks \
             --stack-name "$STACK_NAME" \
             --query "Stacks[0].Outputs[?OutputKey=='FrontendBucketName'].OutputValue" \
             --output text)
-          aws s3 sync dist/ s3://$BUCKET --delete
-        working-directory: frontend
+          aws s3 sync frontend/dist/ s3://$BUCKET --delete
 
       - name: Invalidate CloudFront cache
-        # SAM の Outputs から CloudFrontDistributionId を動的に取得してキャッシュ削除
-        # → secrets に CLOUDFRONT_DISTRIBUTION_ID を設定不要になる
+        # samconfig.toml からスタック名を読み取り、CloudFormation Outputs でDistribution IDを取得
         run: |
-          STACK_NAME=$(grep 'stack_name' ../samconfig.toml | sed 's/.*= *"\(.*\)"/\1/')
+          STACK_NAME=$(grep 'stack_name' samconfig.toml | sed 's/.*= *"\(.*\)"/\1/')
           DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
             --stack-name "$STACK_NAME" \
             --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" \
