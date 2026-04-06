@@ -14,6 +14,9 @@ permissions:
   id-token: write   # OIDC 認証に必要
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Node.js 24 を強制使用（Node.js 20 deprecation 警告を解消）
+
 jobs:
   # -------------------------------------------------------
   # ① バックエンド + インフラ: SAM でまとめてデプロイ
