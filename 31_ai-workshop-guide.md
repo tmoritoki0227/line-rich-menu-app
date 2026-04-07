@@ -205,7 +205,7 @@ SAM（AWS Serverless Application Model）を使ってインフラをコードで
 
 ## さいごに
 
-私自身、このプロジェクトは **Claude Code** を駆使して進めました。
+私自身は **Claude Code** を駆使して進めました。
 
 私にはAWSの知見はありましたが、LINE APIやTypeScript、さらにはGitHub Actionsについても知識がほとんどありませんでした。それでも、AIをパートナーにすることで、最終的にシステムを完成させることができました。
 
