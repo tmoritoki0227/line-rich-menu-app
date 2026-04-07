@@ -78,7 +78,7 @@ line-rich-menu-app/
 
 ### 2-1. プロバイダーと Messaging API チャンネルの作成
 
-> ⚠️ この手順は LINE アカウントで行う。AWS の話は出てこない。
+> ⚠️ この手順は LINE アカウントで行う。
 
 1. [LINE Developers コンソール](https://developers.line.biz/console/) にアクセスしてログイン。
 2. **[作成]** をクリックし、「新規プロバイダー作成」をする。
