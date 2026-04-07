@@ -2,8 +2,7 @@
 ## はじめに
 AIを駆使し、自力で「LINE × AWS 家計簿ボット」を作り上げることがこのドキュメントの目的です。
 コードや詳細設計は提示しません。示すのは「何を作るか」「何を使うか」という指針のみです。
-あとはAIツールと対話しながら、自らの手で実装を進めてください。もし途中で詰まったときは、いつでも遠慮なく聞いてください。
-[参考doc](https://github.com/tmoritoki0227/line-rich-menu-app/blob/main/09_complete-setup-guide.md)
+あとはAIツールと対話しながら、自らの手で実装を進めてください。もし途中で詰まったときは、[参考doc](https://github.com/tmoritoki0227/line-rich-menu-app/blob/main/09_complete-setup-guide.md)を見てください。
 
 ---
 
