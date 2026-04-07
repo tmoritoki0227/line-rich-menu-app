@@ -11,6 +11,8 @@ import type { Transaction } from '../types'
 
 /**
  * 家計簿レコードを 1 件書き込む
+ *
+ * @param transaction - 保存する家計簿レコード
  */
 export async function putTransaction(transaction: Transaction): Promise<void> {
   await docClient.send(

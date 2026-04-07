@@ -1,50 +1,55 @@
-// カートのロジック
+// カートのロジックを担当するコンポーザブル
 //
 // 責務: カートへの追加・削除・数量変更・合計金額の計算。
-// グローバルな状態として管理し、どのページからでも同じカートを参照できる。
+// モジュールスコープに状態を置くことで、メニュー画面・カート画面・確認画面など
+// 複数ページで同じカートを参照できる。
 
 import { ref, computed } from 'vue'
 import type { MenuItem, MenuOption } from '../types/order'
 
-// カート内の1商品
+/** カート内の 1 商品 */
 export interface CartItem {
-  cartId: string    // カート内のユニークID（同じ商品でもオプションが違う場合を区別）
-  itemId: string
-  name: string
-  basePrice: number           // 商品の基本価格
-  unitPrice: number           // オプション込みの単価
-  quantity: number
-  selectedOptions: Record<string, string>  // { "サイズ": "M" }
+  cartId: string                           // カート内のユニーク ID（同じ商品でもオプションが違う場合を区別）
+  itemId: string                           // メニュー商品の ID
+  name: string                             // 商品名
+  basePrice: number                        // 商品の基本価格（オプション追加料金を含まない）
+  unitPrice: number                        // オプション込みの単価
+  quantity: number                         // 数量
+  selectedOptions: Record<string, string>  // 選択されたオプション（例: { "サイズ": "M" }）
 }
 
-// カートの状態（モジュールスコープに置くことでページ間で共有される）
+// カートの状態（モジュールスコープ）
 const cartItems = ref<CartItem[]>([])
 
 export const useCart = () => {
-  // 合計金額
+  /** 合計金額 */
   const totalPrice = computed(() =>
     cartItems.value.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
   )
 
-  // 合計個数
+  /** 合計個数 */
   const totalCount = computed(() =>
     cartItems.value.reduce((sum, item) => sum + item.quantity, 0)
   )
 
-  // カートに追加
-  // 同じ itemId + 同じオプションの組み合わせがあれば数量を増やす
+  /**
+   * カートに商品を追加する
+   *
+   * 同じ itemId かつ同じオプションの組み合わせがすでにある場合は数量を増やす。
+   *
+   * @param menuItem        - 追加するメニュー商品
+   * @param selectedOptions - 選択されたオプション（例: { "サイズ": "M" }）
+   * @param quantity        - 追加する個数（デフォルト: 1）
+   */
   const addToCart = (
     menuItem: MenuItem,
     selectedOptions: Record<string, string>,
     quantity = 1
   ) => {
-    // オプションから追加料金を計算
     const extraPrice = calcExtraPrice(menuItem.options, selectedOptions)
     const unitPrice  = menuItem.price + extraPrice
-
-    // 同じ商品・同じオプションを探す
-    const key      = buildCartKey(menuItem.itemId, selectedOptions)
-    const existing = cartItems.value.find(i => i.cartId === key)
+    const key        = buildCartKey(menuItem.itemId, selectedOptions)
+    const existing   = cartItems.value.find(i => i.cartId === key)
 
     if (existing) {
       existing.quantity += quantity
@@ -61,7 +66,14 @@ export const useCart = () => {
     }
   }
 
-  // 数量を変更（0 にすると削除）
+  /**
+   * カート内の商品の数量を変更する
+   *
+   * quantity を 0 以下にすると商品をカートから削除する。
+   *
+   * @param cartId   - 変更する商品の cartId
+   * @param quantity - 新しい数量
+   */
   const updateQuantity = (cartId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(cartId)
@@ -71,12 +83,16 @@ export const useCart = () => {
     if (item) item.quantity = quantity
   }
 
-  // カートから削除
+  /**
+   * カートから商品を削除する
+   *
+   * @param cartId - 削除する商品の cartId
+   */
   const removeFromCart = (cartId: string) => {
     cartItems.value = cartItems.value.filter(i => i.cartId !== cartId)
   }
 
-  // カートを空にする
+  /** カートを空にする */
   const clearCart = () => {
     cartItems.value = []
   }
@@ -92,9 +108,14 @@ export const useCart = () => {
   }
 }
 
-// --- ユーティリティ ---
+// --- ユーティリティ（モジュール内部でのみ使用） ---
 
-// オプションの追加料金を合計する
+/**
+ * 選択されたオプションの追加料金を合計する
+ *
+ * @param options  - メニュー商品のオプション定義
+ * @param selected - 選択されたオプション（例: { "サイズ": "M" }）
+ */
 const calcExtraPrice = (
   options: MenuOption[],
   selected: Record<string, string>
@@ -110,7 +131,14 @@ const calcExtraPrice = (
   return extra
 }
 
-// cartId を生成（itemId + 選択オプションの文字列）
+/**
+ * カート内で商品を一意に識別するキーを生成する
+ *
+ * 同じ商品でも選択オプションが異なる場合は別エントリとして扱う。
+ *
+ * @param itemId          - メニュー商品の ID
+ * @param selectedOptions - 選択されたオプション
+ */
 const buildCartKey = (
   itemId: string,
   selectedOptions: Record<string, string>

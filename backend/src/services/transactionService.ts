@@ -9,6 +9,12 @@ import type { Transaction, HistoryItem } from '../types'
 
 /**
  * 家計簿を新規作成して DynamoDB に保存する
+ *
+ * @param params.userId  - LINE ユーザー ID
+ * @param params.groupId - グループトークの ID（個人トークの場合は省略）
+ * @param params.date    - 日付（"YYYY-MM-DD"）
+ * @param params.amount  - 金額（円）
+ * @param params.item    - 品物名
  * @returns 作成されたレコードの ID（UUID）
  */
 export async function createTransaction(params: {
@@ -34,6 +40,8 @@ export async function createTransaction(params: {
 
 /**
  * 指定ユーザーの家計簿履歴を最新 20 件取得する
+ *
+ * @param userId - LINE ユーザー ID
  */
 export async function listHistory(userId: string): Promise<Record<string, unknown>[]> {
   return queryByUserId(userId, 20)
@@ -44,6 +52,11 @@ export async function listHistory(userId: string): Promise<Record<string, unknow
  *
  * DynamoDB には日付専用インデックスがないため全件取得後にアプリ側でフィルタする。
  * データ量が増えた場合は GSI（グローバルセカンダリインデックス）の追加を検討すること。
+ *
+ * @param userId    - LINE ユーザー ID
+ * @param startDate - 集計開始日（"YYYY-MM-DD"）
+ * @param endDate   - 集計終了日（"YYYY-MM-DD"）
+ * @returns 指定期間の支出合計（円）
  */
 export async function calcSummary(
   userId: string,
@@ -62,6 +75,9 @@ export async function calcSummary(
 
 /**
  * 当月の支出合計を返す（LINE Webhook の「合計」キーワード用）
+ *
+ * @param userId - LINE ユーザー ID
+ * @returns 当月の支出合計（円）
  */
 export async function calcMonthlyTotal(userId: string): Promise<number> {
   const now = new Date()
@@ -74,6 +90,10 @@ export async function calcMonthlyTotal(userId: string): Promise<number> {
 
 /**
  * 最新 N 件の履歴を整形して返す（LINE Webhook の「最新の履歴を表示」キーワード用）
+ *
+ * @param userId - LINE ユーザー ID
+ * @param limit  - 取得件数の上限（デフォルト: 5）
+ * @returns 最新 N 件の履歴（createdAt 降順）
  */
 export async function listRecentHistory(userId: string, limit = 5): Promise<HistoryItem[]> {
   // SK が UUID（ランダム）のため DynamoDB のソート順は日付順にならない

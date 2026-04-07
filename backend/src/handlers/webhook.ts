@@ -8,6 +8,8 @@ import { verifyLineSignature, processEvents } from '../services/lineService'
 
 /**
  * POST /webhook — LINE Webhook を受信して処理する
+ *
+ * @param event - API Gateway リクエストイベント
  */
 export async function handleWebhook(
   event: APIGatewayProxyEvent

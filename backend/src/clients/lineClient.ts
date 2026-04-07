@@ -6,6 +6,8 @@
 
 /**
  * LINE トークルームにテキストメッセージをリプライする
+ * @param replyToken - LINE から渡される返信用トークン
+ * @param text - 送信するテキスト
  */
 export async function replyToLine(replyToken: string, text: string): Promise<void> {
   await fetch('https://api.line.me/v2/bot/message/reply', {
@@ -24,6 +26,7 @@ export async function replyToLine(replyToken: string, text: string): Promise<voi
 /**
  * LINE トークルームに Flex Message（カード形式）をリプライする
  *
+ * @param replyToken - LINE から渡される返信用トークン
  * @param altText - LINE 通知や Flex 非対応環境で表示される代替テキスト
  * @param contents - Flex Message のボディ定義（LINE Flex Message Simulator で作成可能）
  */

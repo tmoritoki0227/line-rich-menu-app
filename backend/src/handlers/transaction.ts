@@ -15,6 +15,8 @@ const corsHeaders = {
 
 /**
  * POST /transaction — 家計簿を保存する
+ *
+ * @param event - API Gateway リクエストイベント
  */
 export async function saveTransaction(
   event: APIGatewayProxyEvent
@@ -41,6 +43,8 @@ export async function saveTransaction(
 
 /**
  * GET /history?userId=xxx — 家計簿履歴を取得する
+ *
+ * @param event - API Gateway リクエストイベント
  */
 export async function getHistory(
   event: APIGatewayProxyEvent
@@ -66,6 +70,8 @@ export async function getHistory(
 
 /**
  * GET /summary?userId=xxx&startDate=YYYY-MM-DD&endDate=YYYY-MM-DD — 期間集計する
+ *
+ * @param event - API Gateway リクエストイベント
  */
 export async function getSummary(
   event: APIGatewayProxyEvent

@@ -1,6 +1,7 @@
 // POST /order, GET /order/{orderId} ハンドラ
 //
-// 責務: HTTPリクエストの解析・バリデーション・レスポンス返却のみ。
+// 責務: HTTP リクエストの解析・バリデーション・レスポンス返却のみ。
+// 注文作成・取得のロジックは services/orderService に委譲する。
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { createOrder, getOrder } from '../services/orderService'
@@ -10,7 +11,12 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
 }
 
-// POST /order — 注文作成
+/**
+ * POST /order — 注文を作成する
+ *
+ * リクエストボディ: { userId, userName, items, totalPrice }
+ * レスポンス: { orderId, orderNumber }
+ */
 export const postOrder = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -34,7 +40,11 @@ export const postOrder = async (
   }
 }
 
-// GET /order/{orderId} — 注文状況確認（お客がポーリングで呼ぶ）
+/**
+ * GET /order/{orderId} — 注文状況を取得する（お客がポーリングで呼ぶ）
+ *
+ * @param event.pathParameters.orderId - 取得する注文の ID
+ */
 export const getOrderById = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {

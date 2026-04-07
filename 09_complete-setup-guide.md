@@ -1,15 +1,5 @@
 # 【記事⑨】AWS × LINE 家計簿ボット — git clone から動かすまでの完全手順書
 
-> **この記事の位置づけ**
-> 記事⑦（07_quickstart.md）は他の記事への参照が含まれている。
-> **この記事はそれらをすべて組み込んだ単独完結版**。この記事だけ読めばアプリが動く状態になる。
->
-> - コードは [GitHub リポジトリ](https://github.com/tmoritoki0227/line-rich-menu-app) にある
-> - AWS リソースは何もない状態からスタートする前提
-> - LINE アカウントは作成済みであること
-
----
-
 ## この記事でやること
 
 | # | 作業 | 所要時間の目安 |
@@ -32,8 +22,8 @@
 
 | 条件 | 参照 |
 |---|---|
-| AWS アカウントがあり IAM Identity Center が設定済み | **記事①** |
-| `aws sso login --profile line-rich-menu-app` でログインできる | **記事①** |
+| AWS アカウントがあり IAM Identity Center が設定済み | |
+| `aws sso login --profile line-rich-menu-app` でログインできる |  |
 | Node.js 24.x がインストールされている | — |
 | SAM CLI がインストールされている | [公式インストール手順](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/install-sam-cli.html) |
 | GitHub アカウントがあり、リポジトリの fork または push 権限がある | — |

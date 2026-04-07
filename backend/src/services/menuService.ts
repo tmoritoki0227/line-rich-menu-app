@@ -1,41 +1,48 @@
-// メニューのビジネスロジック
+// メニューのビジネスロジック（Service 層）
 //
-// 責務: カテゴリ別にグループ化するなどの加工処理。DynamoDB 操作は repository に任せる。
+// 責務: DynamoDB から取得した生データをカテゴリ別に加工する。
+// DynamoDB 操作は repositories/menuRepository に委譲する。
 
 import { scanAllMenuItems, MenuItemRecord, MenuOption } from '../repositories/menuRepository'
 
-// フロントエンドに返すカテゴリ別メニューの型
+/** フロントエンドに返すメニュー商品の型 */
 export interface MenuItem {
-  itemId: string
-  name: string
-  price: number
-  description: string
-  imageUrl: string
-  available: boolean
-  options: MenuOption[]
+  itemId: string       // 商品 ID
+  name: string         // 商品名
+  price: number        // 基本価格（円）
+  description: string  // 商品説明
+  imageUrl: string     // 商品画像の URL
+  available: boolean   // false の場合は売り切れなどで注文不可
+  options: MenuOption[] // 選択可能なオプション一覧
 }
 
+/** フロントエンドに返すカテゴリ別メニューの型 */
 export interface MenuCategory {
-  categoryId: string
-  label: string
-  items: MenuItem[]
+  categoryId: string  // カテゴリ ID（例: "coffee"）
+  label: string       // 表示名（例: "コーヒー"）
+  items: MenuItem[]   // そのカテゴリに属する商品一覧
 }
 
-// カテゴリ表示名の定義（PK の "CATEGORY#xxx" の xxx → 日本語）
+/** カテゴリ ID → 表示名のマッピング */
 const CATEGORY_LABELS: Record<string, string> = {
   coffee: 'コーヒー',
   food:   'フード',
   drink:  'ドリンク',
 }
 
-// カテゴリの表示順
+/** カテゴリの表示順（ここに含まれないカテゴリは末尾に追加される） */
 const CATEGORY_ORDER = ['coffee', 'drink', 'food']
 
-// 全メニューをカテゴリ別にグループ化して返す
+/**
+ * 全メニューをカテゴリ別にグループ化して返す
+ *
+ * DynamoDB の PK "CATEGORY#xxx" / SK "ITEM#yyy" 形式のレコードを
+ * フロントエンドが扱いやすい配列形式に変換する。
+ */
 export const getMenuGroupedByCategory = async (): Promise<MenuCategory[]> => {
   const records = await scanAllMenuItems()
 
-  // カテゴリごとにまとめる
+  // カテゴリ ID をキーに商品をグループ化する
   const map = new Map<string, MenuItem[]>()
 
   for (const record of records) {
@@ -55,7 +62,7 @@ export const getMenuGroupedByCategory = async (): Promise<MenuCategory[]> => {
     })
   }
 
-  // 表示順に並べて返す
+  // CATEGORY_ORDER に従って並べ替える
   const categories: MenuCategory[] = []
   for (const categoryId of CATEGORY_ORDER) {
     if (map.has(categoryId)) {
@@ -67,7 +74,7 @@ export const getMenuGroupedByCategory = async (): Promise<MenuCategory[]> => {
     }
   }
 
-  // CATEGORY_ORDER に含まれないカテゴリも末尾に追加
+  // CATEGORY_ORDER に含まれないカテゴリは末尾に追加する
   for (const [categoryId, items] of map.entries()) {
     if (!CATEGORY_ORDER.includes(categoryId)) {
       categories.push({

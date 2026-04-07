@@ -1,6 +1,7 @@
 // GET /staff/orders, PUT /staff/orders/{orderId}/status ハンドラ
 //
-// 責務: HTTPリクエストの解析・バリデーション・レスポンス返却のみ。
+// 責務: HTTP リクエストの解析・バリデーション・レスポンス返却のみ。
+// 注文一覧取得・ステータス更新のロジックは services/orderService に委譲する。
 
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getActiveOrders, changeOrderStatus } from '../services/orderService'
@@ -11,9 +12,15 @@ const headers = {
   'Access-Control-Allow-Origin': '*',
 }
 
+/** 受け付けるステータス値の一覧（バリデーション用） */
 const VALID_STATUSES: OrderStatus[] = ['pending', 'ready', 'done']
 
-// GET /staff/orders — 未完了注文一覧
+/**
+ * GET /staff/orders — 未完了注文の一覧を取得する
+ *
+ * pending と ready の注文を古い順に返す。
+ * done（受け取り済み）は除外する。
+ */
 export const getStaffOrders = async (
   _event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -26,7 +33,12 @@ export const getStaffOrders = async (
   }
 }
 
-// PUT /staff/orders/{orderId}/status — ステータス更新
+/**
+ * PUT /staff/orders/{orderId}/status — 注文ステータスを更新する
+ *
+ * @param event.pathParameters.orderId - 更新する注文の ID
+ * リクエストボディ: { status: "pending" | "ready" | "done" }
+ */
 export const putOrderStatus = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {

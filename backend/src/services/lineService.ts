@@ -14,6 +14,10 @@ import { calcMonthlyTotal, listRecentHistory } from './transactionService'
  * LINE サーバーはリクエストの正当性を証明するために
  * チャネルシークレットで HMAC-SHA256 署名を計算してヘッダーに付ける。
  * 一致しない場合は LINE サーバー以外からの不正リクエストとして弾く。
+ *
+ * @param body      - リクエストボディ（署名検証の小文字列）
+ * @param signature - x-line-signature ヘッダーの値
+ * @returns 署名が正当な場合は true
  */
 export function verifyLineSignature(body: string, signature: string): boolean {
   const secret = process.env.LINE_CHANNEL_SECRET ?? ''
@@ -23,6 +27,8 @@ export function verifyLineSignature(body: string, signature: string): boolean {
 
 /**
  * Webhook ボディ内の全イベントを並列処理する
+ *
+ * @param body - LINE から送られた Webhook ボディ（JSON 文字列）
  */
 export async function processEvents(body: string): Promise<void> {
   const { events }: LineWebhookBody = JSON.parse(body)
@@ -32,6 +38,15 @@ export async function processEvents(body: string): Promise<void> {
 
 /**
  * LINE イベント 1 件を処理する（テキストメッセージのキーワード判定）
+ *
+ * 対応キーワード:
+ * - 「合計」"summary" → 当月の支出合計を返信
+ * - 「最新の履歴を表示」 → 最新 5 件の履歴を返信
+ * - 「ヘルプ」 → Flex Message で操作メニューを返信
+ * - 「機能2」 → 準備中メッセージを返信
+ * - その他 → 使い方の案内を返信
+ *
+ * @param event - 処理する LINE イベント
  */
 async function processLineEvent(event: LineEvent): Promise<void> {
   // テキストメッセージ以外は無視
