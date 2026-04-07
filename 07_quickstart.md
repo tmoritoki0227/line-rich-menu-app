@@ -34,7 +34,7 @@
 |---|---|
 | AWS アカウントがあり IAM Identity Center が設定済み | **記事①** |
 | `aws sso login --profile line-rich-menu-app` でログインできる | **記事①** |
-| Node.js 22.x がインストールされている | — |
+| Node.js 24.x がインストールされている | — |
 | SAM CLI がインストールされている | [公式インストール手順](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/install-sam-cli.html) |
 | GitHub アカウントがあり、このリポジトリを fork または push 権限がある | — |
 

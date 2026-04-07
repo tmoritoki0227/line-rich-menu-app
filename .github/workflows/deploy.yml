@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Setup SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -68,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4.4.0
         with:
-          node-version: '22'
+          node-version: '24'
 
       - name: Configure AWS credentials（OIDC）
         uses: aws-actions/configure-aws-credentials@v4.1.0

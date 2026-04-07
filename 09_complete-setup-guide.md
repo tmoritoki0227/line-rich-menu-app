@@ -34,7 +34,7 @@
 |---|---|
 | AWS アカウントがあり IAM Identity Center が設定済み | **記事①** |
 | `aws sso login --profile line-rich-menu-app` でログインできる | **記事①** |
-| Node.js 22.x がインストールされている | — |
+| Node.js 24.x がインストールされている | — |
 | SAM CLI がインストールされている | [公式インストール手順](https://docs.aws.amazon.com/ja_jp/serverless-application-model/latest/developerguide/install-sam-cli.html) |
 | GitHub アカウントがあり、リポジトリの fork または push 権限がある | — |
 | LINE アカウントがある | — |
@@ -632,7 +632,7 @@ GitHub Actions が自動起動し、以下が順番に実行される。
 
 | 症状 | 確認先 |
 |---|---|
-| `sam build` が失敗する | Node.js 22.x がインストールされているか確認 |
+| `sam build` が失敗する | Node.js 24.x がインストールされているか確認 |
 | `sam deploy` が失敗する | `aws sso login` でセッションが生きているか確認 |
 | LIFF フォームが開かない | ステップ6-1 の LIFF エンドポイント URL が正しいか確認 |
 | Webhook 検証が失敗する | ステップ6-2 の URL が `WebhookUrl` の値と一致しているか確認 |
